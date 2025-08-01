@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI - Daily Banking Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .powerbi-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .powerbi-header {
+            background: #2c2c2c;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .powerbi-logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .powerbi-logo::before {
+            content: "📊";
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .powerbi-title {
+            font-size: 14px;
+            color: #ffd700;
+        }
+
+        .powerbi-controls {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .control-btn {
+            padding: 4px 8px;
+            background: #444;
+            border: none;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .control-btn:hover {
+            background: #555;
+        }
+
+        .powerbi-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .powerbi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e1e5e9;
+            position: relative;
+        }
+
+        .powerbi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ffb347);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-options {
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0078d4;
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .kpi-change {
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .positive-change {
+            background: #dff6dd;
+            color: #107c10;
+        }
+
+        .negative-change {
+            background: #fde7e9;
+            color: #d13438;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            border: 2px dashed #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,90 L20,70 L30,85 L40,60 L50,75 L60,50 L70,65 L80,40 L90,55" stroke="%230078d4" stroke-width="2" fill="none"/></svg>') no-repeat center;
+            background-size: 80% 60%;
+            opacity: 0.3;
+        }
+
+        .table-placeholder {
+            height: 150px;
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 8px;
+            border-bottom: 1px solid #e1e5e9;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .table-row {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .filter-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e1e5e9;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .filter-select {
+            padding: 6px 10px;
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            font-size: 12px;
+            background: white;
+            min-width: 120px;
+        }
+
+        .powerbi-watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 10px;
+            color: #999;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 1200px) {
+            .powerbi-body {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .powerbi-body {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="powerbi-container">
+        <div class="powerbi-header">
+            <div class="powerbi-logo">
+                Power BI
+                <span class="powerbi-title">Daily Banking Analytics</span>
+            </div>
+            <div class="powerbi-controls">
+                <button class="control-btn">📅 Filtros</button>
+                <button class="control-btn">📊 Exportar</button>
+                <button class="control-btn">🔄 Atualizar</button>
+                <button class="control-btn">⚙️ Configurar</button>
+            </div>
+        </div>
+
+        <div class="powerbi-body">
+            <!-- Filtros -->
+            <div class="filter-panel">
+                <div class="filter-item">
+                    <label class="filter-label">Período</label>
+                    <select class="filter-select">
+                        <option>Últimos 30 dias</option>
+                        <option>Últimos 7 dias</option>
+                        <option>Este mês</option>
+                        <option>Personalizado</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Canal</label>
+                    <select class="filter-select">
+                        <option>Todos os canais</option>
+                        <option>App Mobile</option>
+                        <option>Internet Banking</option>
+                        <option>WhatsApp</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Produto</label>
+                    <select class="filter-select">
+                        <option>Todos os produtos</option>
+                        <option>Pix</option>
+                        <option>TED</option>
+                        <option>Investimentos</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Segmento</label>
+                    <select class="filter-select">
+                        <option>Todos</option>
+                        <option>Premium</option>
+                        <option>Gold</option>
+                        <option>Standard</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPIs Principais -->
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Usuários Ativos (MAU)
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="kpi-value">2.3M</div>
+                <div class="kpi-label">Monthly Active Users</div>
+                <div class="kpi-change negative-change">↓ 8.0% vs meta</div>
+            </div>
+
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Taxa de Conversão
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="kpi-value">87.5%</div>
+                <div class="kpi-label">Conversion Rate</div>
+                <div class="kpi-change positive-change">↑ 2.5% vs mês anterior</div>
+            </div>
+
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Revenue per User
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="kpi-value">R$ 42.30</div>
+                <div class="kpi-label">RPU Médio</div>
+                <div class="kpi-change positive-change">↑ 5.7% vs meta</div>
+            </div>
+
+            <!-- Gráfico de Transações -->
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Evolução de Transações (30d)
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="chart-placeholder">
+                    Gráfico de Linha - Transações ao longo do tempo
+                </div>
+            </div>
+
+            <!-- Produtos Mais Utilizados -->
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Top Produtos por Volume
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="table-placeholder">
+                    <div class="table-header">Produto | Volume | %</div>
+                    <div class="table-row">
+                        <span>Pix</span>
+                        <span>1.2M | 45%</span>
+                    </div>
+                    <div class="table-row">
+                        <span>TED</span>
+                        <span>534K | 20%</span>
+                    </div>
+                    <div class="table-row">
+                        <span>Boleto</span>
+                        <span>401K | 15%</span>
+                    </div>
+                    <div class="table-row">
+                        <span>Cartão</span>
+                        <span>320K | 12%</span>
+                    </div>
+                    <div class="table-row">
+                        <span>Investimentos</span>
+                        <span>214K | 8%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horários de Maior Uso -->
+            <div class="powerbi-card">
+                <div class="card-title">
+                    Distribuição por Horário
+                    <span class="card-options">⋯</span>
+                </div>
+                <div class="chart-placeholder">
+                    Gráfico de Barras - Peak hours de uso
+                </div>
+            </div>
+
+        </div>
+
+        <div class="powerbi-watermark">
+            Powered by Microsoft Power BI | Dados atualizados: 31/07/2025 09:15
+        </div>
+    </div>
+
+    <script>
+        // Simular interatividade básica
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                // Simular loading
+                document.querySelectorAll('.chart-placeholder').forEach(chart => {
+                    chart.style.opacity = '0.5';
+                    setTimeout(() => {
+                        chart.style.opacity = '1';
+                    }, 500);
+                });
+            });
+        });
+
+        // Simular atualização de dados
+        document.querySelector('.control-btn').addEventListener('click', function() {
+            if (this.textContent.includes('Atualizar')) {
+                this.textContent = '🔄 Atualizando...';
+                this.style.background = '#666';
+                
+                setTimeout(() => {
+                    this.textContent = '🔄 Atualizar';
+                    this.style.background = '#444';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

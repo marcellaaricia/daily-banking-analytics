@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Dados Bancários</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .generate-btn {
+            grid-column: 1 / -1;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .download-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .download-btn {
+            padding: 12px 25px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+
+        .preview {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .preview th {
+            background: #f8f9fa;
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .preview td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            color: #856404;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Gerador de Dados Bancários</h1>
+        
+        <div class="instructions">
+            <h3>📋 Como usar:</h3>
+            <ul>
+                <li>Configure os parâmetros abaixo</li>
+                <li>Clique em "Gerar Dados"</li>
+                <li>Baixe o arquivo CSV</li>
+                <li>Importe no Excel ou Power BI</li>
+                <li>Use para seu projeto no LinkedIn!</li>
+            </ul>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Número de Registros:</label>
+                <input type="number" id="numRecords" value="5000" min="100" max="50000">
+            </div>
+            
+            <div class="control-group">
+                <label>Período (dias):</label>
+                <input type="number" id="periodDays" value="30" min="7" max="365">
+            </div>
+            
+            <div class="control-group">
+                <label>Incluir Fins de Semana:</label>
+                <select id="includeWeekends">
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Sazonalidade:</label>
+                <select id="seasonality">
+                    <option value="normal">Normal</option>
+                    <option value="peak">Com Picos</option>
+                    <option value="decline">Em Declínio</option>
+                </select>
+            </div>
+
+            <button class="generate-btn" onclick="generateData()">
+                🚀 Gerar Dados Simulados
+            </button>
+        </div>
+
+        <div class="download-section" id="downloadSection" style="display: none;">
+            <h3>📥 Downloads Disponíveis</h3>
+            <button class="download-btn" onclick="downloadCSV()">📊 Baixar CSV</button>
+            <button class="download-btn" onclick="downloadSQL()">🗃️ Baixar SQL</button>
+            <button class="download-btn" onclick="downloadExcel()">📈 Template Excel</button>
+            
+            <div class="status success" id="status" style="display: none;">
+                ✅ Dados gerados com sucesso! Total de registros: <span id="recordCount"></span>
+            </div>
+        </div>
+
+        <div class="preview" id="preview" style="display: none;">
+            <table id="previewTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let generatedData = [];
+        
+        function generateData() {
+            const numRecords = parseInt(document.getElementById('numRecords').value);
+            const periodDays = parseInt(document.getElementById('periodDays').value);
+            const includeWeekends = document.getElementById('includeWeekends').value === 'true';
+            const seasonality = document.getElementById('seasonality').value;
+            
+            generatedData = [];
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - periodDays);
+            
+            // Tipos de transação com pesos
+            const transactionTypes = [
+                { type: 'PIX', weight: 45, avgValue: 250 },
+                { type: 'TED', weight: 20, avgValue: 1500 },
+                { type: 'BOLETO', weight: 15, avgValue: 300 },
+                { type: 'CARTAO', weight: 12, avgValue: 120 },
+                { type: 'INVESTIMENTO', weight: 8, avgValue: 5000 }
+            ];
+            
+            const channels = ['APP_MOBILE', 'INTERNET_BANKING', 'WHATSAPP', 'AGENCIA'];
+            const segments = ['PREMIUM', 'GOLD', 'STANDARD'];
+            const statuses = ['SUCESSO', 'FALHA', 'CANCELADO'];
+            
+            for (let i = 0; i < numRecords; i++) {
+                // Data aleatória no período
+                const randomDate = new Date(startDate);
+                randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * periodDays));
+                
+                // Pular fins de semana se configurado
+                if (!includeWeekends && (randomDate.getDay() === 0 || randomDate.getDay() === 6)) {
+                    continue;
+                }
+                
+                // Horário com distribuição realista (picos às 12h e 19h)
+                let hour = Math.floor(Math.random() * 24);
+                if (Math.random() < 0.3) { // 30% chance de horário de pico
+                    hour = Math.random() < 0.5 ? 12 + Math.floor(Math.random() * 2) : 19 + Math.floor(Math.random() * 2);
+                }
+                
+                randomDate.setHours(hour, Math.floor(Math.random() * 60), Math.floor(Math.random() * 60));
+                
+                // Selecionar tipo de transação baseado no peso
+                const transactionType = selectWeighted(transactionTypes);
+                
+                // Aplicar sazonalidade
+                let multiplier = 1;
+                if (seasonality === 'peak') {
+                    multiplier = 1 + (Math.sin(i / numRecords * Math.PI * 2) * 0.3);
+                } else if (seasonality === 'decline') {
+                    multiplier = 1 - (i / numRecords * 0.2);
+                }
+                
+                const record = {
+                    user_id: `USR${String(Math.floor(Math.random() * 100000)).padStart(6, '0')}`,
+                    timestamp_transacao: randomDate.toISOString().slice(0, 19).replace('T', ' '),
+                    tipo_transacao: transactionType.type,
+                    canal_acesso: channels[Math.floor(Math.random() * channels.length)],
+                    valor_transacao: Math.round((transactionType.avgValue * (0.5 + Math.random()) * multiplier) * 100) / 100,
+                    status_transacao: weightedSelect(['SUCESSO', 'FALHA', 'CANCELADO'], [85, 10, 5]),
+                    segment_cliente: weightedSelect(['STANDARD', 'GOLD', 'PREMIUM'], [60, 30, 10]),
+                    hora_transacao: hour,
+                    dia_semana: randomDate.getDay(),
+                    valor_taxa: Math.round(Math.random() * 5 * 100) / 100
+                };
+                
+                generatedData.push(record);
+            }
+            
+            // Ordenar por data
+            generatedData.sort((a, b) => new Date(b.timestamp_transacao) - new Date(a.timestamp_transacao));
+            
+            showPreview();
+            showDownloadSection();
+        }
+        
+        function selectWeighted(items) {
+            const total = items.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * total;
+            
+            for (const item of items) {
+                random -= item.weight;
+                if (random <= 0) return item;
+            }
+            return items[0];
+        }
+        
+        function weightedSelect(items, weights) {
+            const total = weights.reduce((sum, weight) => sum + weight, 0);
+            let random = Math.random() * total;
+            
+            for (let i = 0; i < weights.length; i++) {
+                random -= weights[i];
+                if (random <= 0) return items[i];
+            }
+            return items[0];
+        }
+        
+        function showPreview() {
+            const preview = document.getElementById('preview');
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            
+            if (generatedData.length === 0) return;
+            
+            // Cabeçalho
+            const headers = Object.keys(generatedData[0]);
+            tableHead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            
+            // Primeiras 20 linhas
+            const previewData = generatedData.slice(0, 20);
+            tableBody.innerHTML = previewData.map(row => 
+                `<tr>${headers.map(h => `<td>${row[h]}</td>`).join('')}</tr>`
+            ).join('');
+            
+            preview.style.display = 'block';
+        }
+        
+        function showDownloadSection() {
+            document.getElementById('downloadSection').style.display = 'block';
+            document.getElementById('status').style.display = 'block';
+            document.getElementById('recordCount').textContent = generatedData.length.toLocaleString();
+        }
+        
+        function downloadCSV() {
+            if (generatedData.length === 0) return;
+            
+            const headers = Object.keys(generatedData[0]);
+            const csvContent = [
+                headers.join(','),
+                ...generatedData.map(row => headers.map(h => `"${row[h]}"`).join(','))
+            ].join('\n');
+            
+            downloadFile(csvContent, 'dados_daily_banking.csv', 'text/csv');
+        }
+        
+        function downloadSQL() {
+            if (generatedData.length === 0) return;
+            
+            const sqlContent = `-- Dados simulados para análise Daily Banking
+-- Gerado em: ${new Date().toISOString()}
+
+CREATE TABLE IF NOT EXISTS transacoes (
+    user_id VARCHAR(20),
+    timestamp_transacao TIMESTAMP,
+    tipo_transacao VARCHAR(20),
+    canal_acesso VARCHAR(20),
+    valor_transacao DECIMAL(10,2),
+    status_transacao VARCHAR(20),
+    segment_cliente VARCHAR(20),
+    hora_transacao INT,
+    dia_semana INT,
+    valor_taxa DECIMAL(5,2)
+);
+
+INSERT INTO transacoes VALUES
+${generatedData.map(row => 
+    `('${row.user_id}', '${row.timestamp_transacao}', '${row.tipo_transacao}', '${row.canal_acesso}', ${row.valor_transacao}, '${row.status_transacao}', '${row.segment_cliente}', ${row.hora_transacao}, ${row.dia_semana}, ${row.valor_taxa})`
+).join(',\n')};`;
+            
+            downloadFile(sqlContent, 'dados_daily_banking.sql', 'text/plain');
+        }
+        
+        function downloadExcel() {
+            alert('📋 Template Excel: Crie uma planilha nova e importe o CSV baixado. Adicione abas para:\n\n• Dados_Brutos (import CSV)\n• Análise_KPIs (fórmulas)\n• Segmentação (classificações)\n• Dashboard (gráficos)\n\nIsso demonstrará suas habilidades no Excel!');
+        }
+        
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
