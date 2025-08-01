@@ -80,7 +80,7 @@ daily-banking-analytics/
 
 ### **1. Clone o Repositório**
 ```bash
-git clone https://github.com/seuusuario/daily-banking-analytics.git
+git clone https://github.com/marcellaaricia/daily-banking-analytics.git
 cd daily-banking-analytics
 ```
 
@@ -200,17 +200,6 @@ python scripts/data_generation.py --records 5000 --days 30
 - 📊 [**Fórmulas Excel Utilizadas**](docs/EXCEL_FORMULAS.md)
 - 💡 [**Business Insights Detalhados**](docs/BUSINESS_INSIGHTS.md)
 
----
-
-## 🤝 **CONTRIBUIÇÕES**
-
-Contribuições são bem-vindas! Por favor:
-
-1. **Fork** o projeto
-2. **Crie** uma branch (`git checkout -b feature/nova-analise`)
-3. **Commit** suas mudanças (`git commit -m 'Add: nova análise de churn'`)
-4. **Push** para a branch (`git push origin feature/nova-analise`)
-5. **Abra** um Pull Request
 
 ---
 
@@ -223,9 +212,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para de
 ## 👨‍💻 **AUTOR**
 
 **[Seu Nome]**
-- 💼 [LinkedIn](https://linkedin.com/in/seuperfil)
-- 📧 [Email](mailto:seuemail@email.com)
-- 🐙 [GitHub](https://github.com/seuusuario)
+- 💼 [LinkedIn](https://linkedin.com/in/marcella-aricia)
+- 📧 [Email](mailto:marcella.aricia@live.com)
+- 🐙 [GitHub](https://github.com/marcellaaricia)
 
 ---
 
